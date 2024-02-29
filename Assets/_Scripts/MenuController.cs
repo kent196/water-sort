@@ -14,7 +14,8 @@ public class MenuController : MonoBehaviour
 
     void Start()
     {
-        text.text = "Level " + SceneManager.GetActiveScene().buildIndex;
+        int levelText = SceneManager.GetActiveScene().buildIndex + 1;
+        text.text = "Level " + levelText;
         endBtn.SetActive(false);
         pauseMenu.SetActive(false);
         endLevelMenu.SetActive(false);

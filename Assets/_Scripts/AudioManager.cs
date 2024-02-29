@@ -60,4 +60,16 @@ public class AudioManager : MonoBehaviour
             sfxSource.Stop();
         }
     }
+
+    public void PauseAllSound()
+    {
+        sfxSource.Pause();
+        musicSource.Pause();
+    }
+
+    public void UnPauseAllSound()
+    {
+        sfxSource.UnPause();
+        musicSource.UnPause();
+    }
 }

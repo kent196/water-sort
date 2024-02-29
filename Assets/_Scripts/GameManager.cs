@@ -34,6 +34,7 @@ public class GameManager : MonoBehaviour
     public void Pause()
     {
         Time.timeScale = 0f;
+        AudioManager.Instance.PauseAllSound();
     }
 
     public void MainMenu()
@@ -56,6 +57,7 @@ public class GameManager : MonoBehaviour
 
     public void Resume()
     {
+        AudioManager.Instance.UnPauseAllSound();
         Time.timeScale = 1f;
     }
 

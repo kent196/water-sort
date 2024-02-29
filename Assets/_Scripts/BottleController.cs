@@ -28,6 +28,8 @@ public class BottleController : MonoBehaviour
 
     private bool playedSound = false;
     private bool pourSound = false;
+
+    public static BottleController Instance { get; private set; }
     public event EventHandler onBottleComplete;
     public Color topColor;
     public BottleController bottleRef;
@@ -76,7 +78,7 @@ public class BottleController : MonoBehaviour
 
         transform.GetComponent<SpriteRenderer>().sortingOrder += 5;
         bottleMask.sortingOrder += 5;
-
+        bottleRef.numberOfColorsInBottle += numberOfTransferColor;
         StartCoroutine("MoveBottle");
     }
 
@@ -137,19 +139,10 @@ public class BottleController : MonoBehaviour
         angleValue = directionMultiplier * rotationValue[rotationIndex];
         bottleMask.material.SetFloat(MULTIPLYER, ScaleMultiplier.Evaluate(angleValue));
         bottleMask.material.SetFloat(FILL_AMOUNT, FillAmountCurve.Evaluate(angleValue));
-        if (bottleRef.numberOfColorsInBottle < 4)
-        {
-            numberOfColorsInBottle -= numberOfTransferColor;
-            bottleRef.numberOfColorsInBottle += numberOfTransferColor;
-        }
-        else
-        {
-            if (!GameManager.Instance.CheckWinCondition())
-            {
-                bottleRef.numberOfColorsInBottle = 4;
-                bottleMask.material.SetFloat(FILL_AMOUNT, lastFillValue);
-            }
-        }
+
+        numberOfColorsInBottle -= numberOfTransferColor;
+        //bottleRef.numberOfColorsInBottle += numberOfTransferColor;
+
         lineRenderer.enabled = false;
         AudioManager.Instance.PauseSFX("Pour");
         StartCoroutine("FlipBottleBack");
@@ -247,21 +240,10 @@ public class BottleController : MonoBehaviour
                         numberOfTopColorLayers = 3;
                         if (bottleColors[1].Equals(bottleColors[0]))
                         {
-                            float colorOffset = 1.5f;
-                            Debug.Log(topColor);
-                            Color smokeColor = new Color(topColor.r * colorOffset, topColor.g * colorOffset, topColor.b * colorOffset, 0.004f);
-                            Vector3 vfxSpawnPos = new Vector3(transform.position.x, transform.position.y - 1.5f, transform.position.z);
                             numberOfTopColorLayers = 4;
-                            if (!playedSound)
-                            {
-                                AudioManager.Instance.PlaySFX("ContainerFinish"); // Play the sound here
-                                Instantiate(confetti, new Vector3(transform.position.x, transform.position.y + 1.7f, transform.position.z), Quaternion.identity);
-                                smoke.startColor = smokeColor;
-                                Instantiate(sparkling, vfxSpawnPos, Quaternion.Euler(-90f, 0, 0));
-                                Instantiate(smoke, vfxSpawnPos, Quaternion.Euler(-90f, 0, 0));
-                                playedSound = true;
-                            }
+                            Invoke("BottleComplete", 1.5f);
                         }
+
                     }
                 }
             }
@@ -354,5 +336,23 @@ public class BottleController : MonoBehaviour
         }
     }
 
+    private void BottleComplete()
+    {
+        float colorOffset = 1.5f;
+        Debug.Log(numberOfTopColorLayers);
+        Color smokeColor = new Color(topColor.r * colorOffset, topColor.g * colorOffset, topColor.b * colorOffset, 0.004f);
+        Vector3 vfxSpawnPos = new Vector3(transform.position.x, transform.position.y - 1.5f, transform.position.z);
+        Vector3 confettiPos = new Vector3(transform.position.x, transform.position.y + 1.7f, transform.position.z);
+        if (!playedSound)
+        {
+            AudioManager.Instance.PlaySFX("ContainerFinish"); // Play the sound here
+            Instantiate(confetti, confettiPos, Quaternion.identity);
+            smoke.startColor = smokeColor;
+            Instantiate(sparkling, vfxSpawnPos, Quaternion.Euler(-90f, 0, 0));
+            Instantiate(smoke, vfxSpawnPos, Quaternion.Euler(-90f, 0, 0));
+            playedSound = true;
+        }
+
+    }
 
 }
