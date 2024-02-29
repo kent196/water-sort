@@ -249,15 +249,16 @@ public class BottleController : MonoBehaviour
                         {
                             float colorOffset = 1.5f;
                             Debug.Log(topColor);
-                            Color smokeColor = new Color(topColor.r * colorOffset, topColor.g * colorOffset, topColor.b * colorOffset, 0.003921569f);
+                            Color smokeColor = new Color(topColor.r * colorOffset, topColor.g * colorOffset, topColor.b * colorOffset, 0.004f);
+                            Vector3 vfxSpawnPos = new Vector3(transform.position.x, transform.position.y - 1.5f, transform.position.z);
                             numberOfTopColorLayers = 4;
                             if (!playedSound)
                             {
                                 AudioManager.Instance.PlaySFX("ContainerFinish"); // Play the sound here
                                 Instantiate(confetti, new Vector3(transform.position.x, transform.position.y + 1.7f, transform.position.z), Quaternion.identity);
                                 smoke.startColor = smokeColor;
-                                Instantiate(sparkling, new Vector3(transform.position.x, transform.position.y - 1.5f, transform.position.z), Quaternion.Euler(-90f, 0, 0));
-                                Instantiate(smoke, new Vector3(transform.position.x, transform.position.y - 1.5f, transform.position.z), Quaternion.Euler(-90f, 0, 0));
+                                Instantiate(sparkling, vfxSpawnPos, Quaternion.Euler(-90f, 0, 0));
+                                Instantiate(smoke, vfxSpawnPos, Quaternion.Euler(-90f, 0, 0));
                                 playedSound = true;
                             }
                         }
