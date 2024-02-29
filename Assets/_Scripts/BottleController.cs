@@ -17,6 +17,7 @@ public class BottleController : MonoBehaviour
     [SerializeField] private Transform chosenSide;
     [SerializeField] private GameObject confetti;
     [SerializeField] private ParticleSystem sparkling;
+    [SerializeField] private ParticleSystem smoke;
     [Range(0, 4)]
     public int numberOfColorsInBottle = 4;
     public int numberOfTopColorLayers = 1;
@@ -47,7 +48,7 @@ public class BottleController : MonoBehaviour
         originalPos = transform.position;
         bottleMask.material.SetFloat(FILL_AMOUNT, fillAmounts[numberOfColorsInBottle]);
         UpdateTopColor();
-        UpdateBottleColor();
+        UpdateColorsInBottle();
     }
 
 
@@ -56,7 +57,6 @@ public class BottleController : MonoBehaviour
     {
         UpdateTopColor();
         CheckBottleFillLevel();
-        UpdateBottleColor();
     }
 
     public void StartTransferColor()
@@ -64,13 +64,14 @@ public class BottleController : MonoBehaviour
 
         ChooseRotationPointAndDirection();
         numberOfTransferColor = Mathf.Min(numberOfTopColorLayers, 4 - bottleRef.numberOfColorsInBottle);
-        Debug.Log(numberOfTransferColor);
         for (int i = 0; i < numberOfTransferColor; i++)
         {
             bottleRef.bottleColors[bottleRef.numberOfColorsInBottle + i] = topColor;
+            Debug.Log("transfer color " + topColor);
+            Debug.Log("receive color " + bottleRef.bottleColors[bottleRef.numberOfColorsInBottle + i]);
+            bottleRef.UpdateColorsInBottle();
         }
-        bottleRef.UpdateBottleColor();
-        Debug.Log("2nd bottle total colors " + bottleRef.numberOfColorsInBottle);
+
         CalculateRotationIndex(4 - bottleRef.numberOfColorsInBottle);
 
         transform.GetComponent<SpriteRenderer>().sortingOrder += 5;
@@ -79,7 +80,7 @@ public class BottleController : MonoBehaviour
         StartCoroutine("MoveBottle");
     }
 
-    public void UpdateBottleColor()
+    public void UpdateColorsInBottle()
     {
         bottleMask.material.SetColor(COLOR1, bottleColors[0]);
         bottleMask.material.SetColor(COLOR2, bottleColors[1]);
@@ -109,11 +110,14 @@ public class BottleController : MonoBehaviour
             {
                 if (lineRenderer.enabled == false)
                 {
-                    lineRenderer.startColor = new Color(topColor.r, topColor.g, topColor.b, 1);
-                    lineRenderer.endColor = new Color(topColor.r, topColor.g, topColor.b, 1);
+                    Color pourColor = new Color(topColor.r, topColor.g, topColor.b, 1);
+                    float streamHeight = 5f;
+
+                    lineRenderer.startColor = pourColor;
+                    lineRenderer.endColor = pourColor;
 
                     lineRenderer.SetPosition(0, chosenSide.position);
-                    lineRenderer.SetPosition(1, chosenSide.position - Vector3.up * 5f);
+                    lineRenderer.SetPosition(1, chosenSide.position - Vector3.up * streamHeight);
 
                     lineRenderer.enabled = true;
                     AudioManager.Instance.PlaySFX("Pour");
@@ -140,8 +144,11 @@ public class BottleController : MonoBehaviour
         }
         else
         {
-            bottleRef.numberOfColorsInBottle = 4;
-            bottleMask.material.SetFloat(FILL_AMOUNT, lastFillValue);
+            if (!GameManager.Instance.CheckWinCondition())
+            {
+                bottleRef.numberOfColorsInBottle = 4;
+                bottleMask.material.SetFloat(FILL_AMOUNT, lastFillValue);
+            }
         }
         lineRenderer.enabled = false;
         AudioManager.Instance.PauseSFX("Pour");
@@ -240,14 +247,17 @@ public class BottleController : MonoBehaviour
                         numberOfTopColorLayers = 3;
                         if (bottleColors[1].Equals(bottleColors[0]))
                         {
-                            float colorOffset = 0.9f;
+                            float colorOffset = 1.5f;
+                            Debug.Log(topColor);
+                            Color smokeColor = new Color(topColor.r * colorOffset, topColor.g * colorOffset, topColor.b * colorOffset, 0.003921569f);
                             numberOfTopColorLayers = 4;
                             if (!playedSound)
                             {
                                 AudioManager.Instance.PlaySFX("ContainerFinish"); // Play the sound here
                                 Instantiate(confetti, new Vector3(transform.position.x, transform.position.y + 1.7f, transform.position.z), Quaternion.identity);
-                                sparkling.startColor = new Color(topColor.r * colorOffset, topColor.g * colorOffset, topColor.b * colorOffset, 250);
+                                smoke.startColor = smokeColor;
                                 Instantiate(sparkling, new Vector3(transform.position.x, transform.position.y - 1.5f, transform.position.z), Quaternion.Euler(-90f, 0, 0));
+                                Instantiate(smoke, new Vector3(transform.position.x, transform.position.y - 1.5f, transform.position.z), Quaternion.Euler(-90f, 0, 0));
                                 playedSound = true;
                             }
                         }
