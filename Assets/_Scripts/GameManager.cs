@@ -28,7 +28,6 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
     }
 
     public void Pause()
@@ -49,6 +48,11 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(LEVEL1);
     }
 
+    public void Quit()
+    {
+        Application.Quit();
+    }
+
     public void ReplayLevel()
     {
         Time.timeScale = 1f;
@@ -63,7 +67,17 @@ public class GameManager : MonoBehaviour
 
     public void NextLevel()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        int nextScene = SceneManager.GetActiveScene().buildIndex + 1;
+        int sceneCount = SceneManager.sceneCountInBuildSettings;
+        if (nextScene > sceneCount - 1)
+        {
+            Debug.Log("Game over");
+            //Invoke("Quit", 3f);
+        }
+        else
+        {
+            SceneManager.LoadScene(nextScene);
+        }
     }
 
     public bool CheckWinCondition()
@@ -74,12 +88,24 @@ public class GameManager : MonoBehaviour
             if (bottle.numberOfTopColorLayers != 4 && bottle.numberOfTopColorLayers != 0)
             {
                 // If any bottle has not been filled with the correct colors or is not empty, return false
+                Debug.Log("Not win yet");
                 return false;
             }
         }
 
         // If all bottles have been filled with the correct colors or are empty, return true
+        Debug.Log("win");
+        if (SceneManager.GetActiveScene().buildIndex == SceneManager.sceneCountInBuildSettings - 1)
+        {
+
+            Invoke("EndGame", 3f);
+        }
         return true;
+    }
+
+    public void EndGame()
+    {
+        MenuController.instance.LevelComplete();
     }
 
 }

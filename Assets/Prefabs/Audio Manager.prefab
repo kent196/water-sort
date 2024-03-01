@@ -304,8 +304,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   musicSound: []
   sfxSound:
-  - name: Click
-    clip: {fileID: 8300000, guid: 80d3799791748ac42b3ec097c17a2383, type: 3}
+  - name: LevelComplete
+    clip: {fileID: 8300000, guid: 52320e590bf774734a288886eba557ba, type: 3}
   - name: Pour
     clip: {fileID: 8300000, guid: e2a03ef1a2070b94daef430ce0686879, type: 3}
   - name: ContainerFinish

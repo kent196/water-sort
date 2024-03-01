@@ -158,7 +158,7 @@ MonoBehaviour:
   confetti: {fileID: 7324564399554552305, guid: 48d845167f6f48c4a94da2c368e634a4, type: 3}
   sparkling: {fileID: 5084344282645204281, guid: 5e0880322fdbf1f49ae4428b829f39ef, type: 3}
   smoke: {fileID: 1678964613833578758, guid: a5b61e78edb901f46b85e6757e77b27e, type: 3}
-  numberOfColorsInBottle: 3
+  numberOfColorsInBottle: 4
   numberOfTopColorLayers: 0
   justThisBottle: 1
   numberOfTransferColor: 0
@@ -182,7 +182,7 @@ MonoBehaviour:
       outWeight: 0.044631846
     - serializedVersion: 3
       time: 90
-      value: 0.25
+      value: 0.3
       inSlope: -0.013614231
       outSlope: -0.013614231
       tangentMode: 0
@@ -190,7 +190,7 @@ MonoBehaviour:
       inWeight: 0.58359224
       outWeight: 0
     m_PreInfinity: 0
-    m_PostInfinity: 2
+    m_PostInfinity: 0
     m_RotationOrder: 4
   FillAmountCurve:
     serializedVersion: 2
@@ -250,7 +250,7 @@ MonoBehaviour:
       inWeight: 0.612463
       outWeight: 0
     m_PreInfinity: 0
-    m_PostInfinity: 0
+    m_PostInfinity: 2
     m_RotationOrder: 4
   RotationSpeedMultiplier:
     serializedVersion: 2
@@ -276,7 +276,7 @@ MonoBehaviour:
     m_PreInfinity: 0
     m_PostInfinity: 0
     m_RotationOrder: 4
-  rotateTimer: 0.5
+  rotateTimer: 1
 --- !u!61 &8049697919553713589
 BoxCollider2D:
   m_ObjectHideFlags: 0

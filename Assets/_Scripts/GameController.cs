@@ -4,7 +4,6 @@ using UnityEngine.UI;
 public class GameController : MonoBehaviour
 {
     [SerializeField] private BottleController firstBottle, secondBottle;
-    private bool isTransferInProgress = false;
     public static GameController instance;
 
     private void Awake()
@@ -41,14 +40,20 @@ public class GameController : MonoBehaviour
                         else
                         {
                             firstBottle = clickedBottle;
-                            firstBottle.transform.position = new Vector3(firstBottle.transform.position.x, firstBottle.transform.position.y + 0.5f, firstBottle.transform.position.z);
+                            if (firstBottle.clickAble)
+                            {
+                                firstBottle.transform.position = new Vector3(firstBottle.transform.position.x, firstBottle.transform.position.y + 0.5f, firstBottle.transform.position.z);
+                            }
                         }
                     }
                     else
                     {
                         if (firstBottle == hit.collider.GetComponent<BottleController>())
                         {
-                            firstBottle.transform.position = new Vector3(firstBottle.transform.position.x, firstBottle.transform.position.y - 0.5f, firstBottle.transform.position.z);
+                            if (firstBottle.clickAble)
+                            {
+                                firstBottle.transform.position = new Vector3(firstBottle.transform.position.x, firstBottle.transform.position.y - 0.5f, firstBottle.transform.position.z);
+                            }
                             firstBottle = null;
                         }
                         else
@@ -77,7 +82,7 @@ public class GameController : MonoBehaviour
                 else if (hit.collider.GetComponent<Button>())
                 {
                     Debug.Log("Click");
-                    AudioManager.Instance.PlaySFX("Click");
+                    //AudioManager.Instance.PlaySFX("Click");
                 }
             }
         }

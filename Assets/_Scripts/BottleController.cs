@@ -27,6 +27,7 @@ public class BottleController : MonoBehaviour
     [SerializeField] private LineRenderer lineRenderer;
 
     private bool playedSound = false;
+    public bool clickAble = true;
     private bool pourSound = false;
 
     public static BottleController Instance { get; private set; }
@@ -43,9 +44,13 @@ public class BottleController : MonoBehaviour
     private const string COLOR4 = "_Color04";
     private const string MULTIPLYER = "_Multiplier";
     private const string FILL_AMOUNT = "_FillAmount";
+
+    private void Awake()
+    {
+        Instance = this;
+    }
     void Start()
     {
-
         isRaised = false;
         originalPos = transform.position;
         bottleMask.material.SetFloat(FILL_AMOUNT, fillAmounts[numberOfColorsInBottle]);
@@ -63,14 +68,13 @@ public class BottleController : MonoBehaviour
 
     public void StartTransferColor()
     {
-
+        clickAble = false;
+        bottleRef.clickAble = false;
         ChooseRotationPointAndDirection();
         numberOfTransferColor = Mathf.Min(numberOfTopColorLayers, 4 - bottleRef.numberOfColorsInBottle);
         for (int i = 0; i < numberOfTransferColor; i++)
         {
             bottleRef.bottleColors[bottleRef.numberOfColorsInBottle + i] = topColor;
-            Debug.Log("transfer color " + topColor);
-            Debug.Log("receive color " + bottleRef.bottleColors[bottleRef.numberOfColorsInBottle + i]);
             bottleRef.UpdateColorsInBottle();
         }
 
@@ -122,11 +126,12 @@ public class BottleController : MonoBehaviour
                     lineRenderer.SetPosition(1, chosenSide.position - Vector3.up * streamHeight);
 
                     lineRenderer.enabled = true;
-                    AudioManager.Instance.PlaySFX("Pour");
+                    AudioManager.Instance.PlaySFX("Pour", 1f);
                 }
                 bottleMask.material.SetFloat(FILL_AMOUNT, FillAmountCurve.Evaluate(angleValue));
-                bottleRef.FillUp(FillAmountCurve.Evaluate(lastAngleValue) - FillAmountCurve.Evaluate(angleValue));
-                //Debug.Log(angleValue + " " + ScaleMultiplier.Evaluate(angleValue));
+                float totalFill = FillAmountCurve.Evaluate(lastAngleValue) - FillAmountCurve.Evaluate(angleValue);
+                bottleRef.FillUp(totalFill);
+
             }
 
             t += Time.deltaTime * RotationSpeedMultiplier.Evaluate(angleValue);
@@ -176,6 +181,7 @@ public class BottleController : MonoBehaviour
         transform.eulerAngles = new Vector3(0, 0, angleValue);
         bottleMask.material.SetFloat(MULTIPLYER, ScaleMultiplier.Evaluate(angleValue));
         UpdateTopColor();
+        bottleRef.clickAble = true;
         StartCoroutine("MoveBottleBack");
     }
 
@@ -205,7 +211,6 @@ public class BottleController : MonoBehaviour
 
     IEnumerator MoveBottleBack()
     {
-
         startPos = transform.position;
         endPos = originalPos;
 
@@ -218,10 +223,27 @@ public class BottleController : MonoBehaviour
         }
 
         transform.position = endPos;
-        MenuController.instance.CheckWinningCondition();
-        //GameController.instance.OnTransferComplete();
         transform.GetComponent<SpriteRenderer>().sortingOrder -= 5;
         bottleMask.sortingOrder -= 5;
+        if (endPos == originalPos)
+        {
+            Debug.Log("Ding");
+            clickAble = true;
+        }
+        else
+        {
+            Debug.Log("Dong");
+        }
+        if (GameManager.Instance.CheckWinCondition())
+        {
+            AudioManager.Instance.PlaySFX("LevelComplete", 0.7f);
+            Invoke("NextLevel", 2f);
+        }
+    }
+
+    public void NextLevel()
+    {
+        GameManager.Instance.NextLevel();
     }
 
     public void UpdateTopColor()
@@ -241,7 +263,7 @@ public class BottleController : MonoBehaviour
                         if (bottleColors[1].Equals(bottleColors[0]))
                         {
                             numberOfTopColorLayers = 4;
-                            Invoke("BottleComplete", 1.5f);
+                            Invoke("BottleComplete", 2f);
                         }
 
                     }
@@ -307,7 +329,8 @@ public class BottleController : MonoBehaviour
 
     private void FillUp(float fillAmountToAdd)
     {
-        bottleMask.material.SetFloat(FILL_AMOUNT, bottleMask.material.GetFloat(FILL_AMOUNT) + fillAmountToAdd);
+        float totalFillAmount = bottleMask.material.GetFloat(FILL_AMOUNT) + fillAmountToAdd;
+        bottleMask.material.SetFloat(FILL_AMOUNT, totalFillAmount);
 
     }
 
@@ -339,13 +362,12 @@ public class BottleController : MonoBehaviour
     private void BottleComplete()
     {
         float colorOffset = 1.5f;
-        Debug.Log(numberOfTopColorLayers);
         Color smokeColor = new Color(topColor.r * colorOffset, topColor.g * colorOffset, topColor.b * colorOffset, 0.004f);
         Vector3 vfxSpawnPos = new Vector3(transform.position.x, transform.position.y - 1.5f, transform.position.z);
         Vector3 confettiPos = new Vector3(transform.position.x, transform.position.y + 1.7f, transform.position.z);
         if (!playedSound)
         {
-            AudioManager.Instance.PlaySFX("ContainerFinish"); // Play the sound here
+            AudioManager.Instance.PlaySFX("ContainerFinish", 1f); // Play the sound here
             Instantiate(confetti, confettiPos, Quaternion.identity);
             smoke.startColor = smokeColor;
             Instantiate(sparkling, vfxSpawnPos, Quaternion.Euler(-90f, 0, 0));

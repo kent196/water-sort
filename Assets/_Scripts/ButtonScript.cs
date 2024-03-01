@@ -17,6 +17,6 @@ public class ButtonScript : MonoBehaviour
     void OnMouseDown()
     {
         Debug.Log("Button click");
-        AudioManager.Instance.PlaySFX("Click");
+        //AudioManager.Instance.PlaySFX("Click");
     }
 }

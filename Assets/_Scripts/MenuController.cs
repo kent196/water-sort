@@ -4,8 +4,9 @@ using UnityEngine.SceneManagement;
 
 public class MenuController : MonoBehaviour
 {
-    [SerializeField] private GameObject pauseMenu, endLevelMenu, endBtn, nextBtn;
+    [SerializeField] private GameObject pauseMenu, endLevelMenu;
     [SerializeField] private TMP_Text text;
+    bool isPause = false;
     public static MenuController instance { get; private set; }
     private void Awake()
     {
@@ -16,7 +17,6 @@ public class MenuController : MonoBehaviour
     {
         int levelText = SceneManager.GetActiveScene().buildIndex + 1;
         text.text = "Level " + levelText;
-        endBtn.SetActive(false);
         pauseMenu.SetActive(false);
         endLevelMenu.SetActive(false);
     }
@@ -35,16 +35,30 @@ public class MenuController : MonoBehaviour
                 Pause();
             }
         }
-
-        if (SceneManager.GetActiveScene().name == "Level4")
+        if (Input.GetMouseButtonDown(0))
         {
-            endBtn.SetActive(true);
-            nextBtn.SetActive(false);
+            CheckResumeOnClick();
+        }
+        CheckWinningCondition();
+    }
+
+    void CheckResumeOnClick()
+    {
+        // Create a layer mask to ignore UI elements
+        LayerMask ignoreUILayers = LayerMask.GetMask("UI");
+
+        // Raycast using the layer mask
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (!Physics.Raycast(ray, out hit, ignoreUILayers))
+        {
+            Resume();
         }
     }
 
     public void Resume()
     {
+        isPause = false;
         pauseMenu?.SetActive(false);
         GameManager.Instance.Resume();
     }
@@ -56,6 +70,7 @@ public class MenuController : MonoBehaviour
 
     public void Pause()
     {
+        isPause = true;
         pauseMenu?.SetActive(true);
         GameManager.Instance.Pause();
     }
@@ -69,7 +84,7 @@ public class MenuController : MonoBehaviour
     public void NextLevel()
     {
         Time.timeScale = 1.0f;
-        GameManager.Instance.NextLevel();
+        //GameManager.Instance.NextLevel();
     }
 
     public void LevelComplete()
@@ -80,11 +95,20 @@ public class MenuController : MonoBehaviour
 
     public void CheckWinningCondition()
     {
-        if (GameManager.Instance.CheckWinCondition())
-        {
-            Debug.Log(GameManager.Instance.CheckWinCondition());
-            LevelComplete();
-        }
+        //if (GameManager.Instance.CheckWinCondition())
+        //{
+        //    //if (SceneManager.GetActiveScene().buildIndex == SceneManager.sceneCountInBuildSettings - 1)
+        //    //{
+        //    //    Invoke("LevelComplete", 3f);
+        //    //}
+        //}
+    }
+
+    public void PlayAgain()
+    {
+        Debug.Log("Clicked");
+        Time.timeScale = 1.0f;
+        SceneManager.LoadScene("Level1");
     }
 
     public void Quit()
